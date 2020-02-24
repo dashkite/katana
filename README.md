@@ -1,2 +1,3 @@
 # katana
-Stack-based composition
+
+Stack-based composition combinators in JavaScript
