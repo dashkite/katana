@@ -22,7 +22,16 @@ peek = curry rtee (f, stack) ->
 replace = curry rtee (f, stack) ->
   _push stack, await apply f, _pop stack, _arity f
 
-copy = curry tee (stack) ->
+copy = tee (stack) ->
   _push stack, (_peek stack, 1)...
 
-export {push, pop, peek, replace, copy}
+test = curry rtee (p, f, stack) ->
+  f stack if (await apply p, _peek stack, _arity p)
+
+restore = curry tee (f, original) -> f Array.from stack
+
+clear = tee (stack) -> []
+
+log = (stack) -> console.log {stack}
+
+export {push, pop, peek, replace, copy, test, restore, clear, log}
