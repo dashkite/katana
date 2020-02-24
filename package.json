@@ -1,0 +1,32 @@
+{
+  "name": "@dashkite/katana",
+  "version": "0.0.1",
+  "description": "Stack-based composition combinators in JavaScript",
+  "main": "build/npm/src/index.js",
+  "dependencies": {
+    "panda-garden": "^5.0.0"
+  },
+  "devDependencies": {
+    "colors": "^1.4.0",
+    "panda-9000": "^5.0.2",
+    "panda-builder": "^4.0.13"
+  },
+  "scripts": {
+    "test": "p9k test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dashkite/katana.git"
+  },
+  "keywords": [
+    "stack",
+    "composition",
+    "combinator"
+  ],
+  "author": "Dan Yoder",
+  "license": "SEE LICENSE IN FILE LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/dashkite/katana/issues"
+  },
+  "homepage": "https://github.com/dashkite/katana#readme"
+}
