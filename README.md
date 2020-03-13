@@ -113,9 +113,9 @@ Takes the top of the stack and adds it again to the top. Equivalent to `spush fi
 
 ### Stack Adapters
 
-#### range
+#### Rack
 
-*range g, f, stack → stack*
+*rack g, f, stack → stack*
 
 Calls *f* with *g stack*. Returns the original stack.
 
@@ -147,6 +147,26 @@ Calls *f* with the first element and iterates over the result, calling *g*, with
 
 ### Convenience Combinators
 
+#### arity
+
+*arity f*
+
+Returns the minimal arity of f. If f is variadiac, returns 1.
+
+> **Important ▸** This is different from _arity_ in [@pandastrike/garden](https://github.com/pandastrike/garden), which returns the given function with the a given arity value.
+
+#### apply
+
+*apply f, array → any*
+
+Calls  *f* with *array* arguments.
+
+#### cover
+
+*cover f, stack → any*
+
+Calls  *f* with *arity f* elements from the top of the stack and returns the result.
+
 
 #### stack
 
@@ -154,15 +174,9 @@ Calls *f* with the first element and iterates over the result, calling *g*, with
 
 Takes a stack function and returns a function that will take an argument list, transform it into a stack, and calling the original function with the resulting stack.
 
-#### unstack
+#### spread
 
-*unstack f → f*
+*spread f → f*
 
 Takes an ordinary function and returns a function that will take a stack, calling the original function with the elements of the stack as arguments.
-
-#### cover
-
-*rack f, stack → any*
-
-Calls  *f* with *arity f* elements from the top of the stack and returns the result.
 
