@@ -3,29 +3,33 @@
 *Stack-based composition combinators in JavaScript.*
 
 ```coffeescript
-task "js", flow [
-  push
-    transpile: presets: [ "@babel/env"]
-    inlineMap: true
-  glob "**/*.coffee", "src"
-  over map flow [
-  	# stack is now [ path, options ]
-    push (path, options) -> assign filename: path, options
-    # [ unit-options, path, options ]
-  	second push read
-    # [ code, unit-options, path, options ]
-  	poke CoffeeScript.compile
-    # [ compiled-code, unit-options, path, options ]
-  	third push relative "src"
-    # [ relative-path, compiled-code, unit-options, path, options ]
-  	poke (path) -> resolve "build", path
-    # [ build-path, compiled-code, unit-options, path, options ]
-  	peek write # build-path, compiled-code
-  ]
+flow [
+  push -> 3
+  dupe
+  push add
+  pop (sum) -> assert.equal sum, 6
 ]
 ```
 
+## Table Of Contents
 
+- [Installation](#installation)
+- [Motivation](#motivation)
+- [API](#api)
+
+## Installation
+
+```
+npm i @dashkite/katana
+```
+
+Browser-compatible. Use with your favorite bundler.
+
+### Motivation
+
+Function composition is a powerful tool in theory, but in practice, it's often difficult for non-trivial scenarios because the arguments and return values of a given set of functions may not be amenable to simple composition. One solution to that problem is to create a “context” type, which each functions takes and returns, thus ensuring they're composable. However, this means you must often write wrapper functions that “know” about the context to use functions that don't.
+
+Stack-based composition provides generic context—the stack—and a set of combinators for adapting ordinary functions for use with it. This eliminates the need for domain-specific context type without sacrificing the ability to compose functions, possibly from different libraries. This is a key advantage of composition over chaining, which requires that each function be expressly added to an object as a method. 
 
 ## API
 
