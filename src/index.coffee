@@ -1,60 +1,34 @@
-import {curry, pipe, tee, rtee} from "panda-garden"
+import {curry, pipe, tee as _tee, rtee} from "panda-garden"
 
-arity = (f) -> if f.length == 0 then 1 else f.length
+_apply = curry (f, args) -> f.apply undefined, args
+_arity = (f) -> if f.length == 0 then 1 else f.length
+apply = curry (f, stack) ->  _apply f, stack[0..(_arity f)]
 
-apply = curry (f, args) -> f.apply undefined, args
+# general variants
+push = curry (f, stack) -> [ (await apply f, stack), stack... ]
+pop = curry (f, stack) -> await apply f, stack ; stack[1..]
+peek = curry (f, stack) -> await apply f, stack ; stack
+poke = curry (f, stack) -> [ (await apply f, stack), stack[1..]... ]
 
-cover = curry (f, stack) ->  apply f, stack[0..(arity f)]
+# m* variants
+mpop = curry (f, stack) -> await apply f, stack ; stack[(_arity f)..]
+mpoke = curry (f, stack) -> [ (await apply f, stack), stack[(_arity f)..]... ]
 
-stack = (f) -> (args...) -> f args
+test = curry (predicate, action, stack) ->
+  if await predicate stack
+    action stack
+  else
+    stack
 
-spread = (f) -> (ax) -> f ax...
+branch = curry (conditions, stack) ->
+  for [predicate, action] in conditions
+    if await predicate stack
+      return action stack
+  stack
 
-push = curry rtee (f, stack) ->
-  stack.unshift await cover f, stack
+rack = curry (g, f, stack) -> f g stack
 
-pop = curry rtee (f, stack) ->
-  await cover f, stack
-  stack.shift()
-
-mpop = curry rtee (f, stack) ->
-  await cover f, stack
-  stack.shift() for _ in [0..(arity f)]
-
-peek = curry rtee (f, stack) -> cover f, stack
-
-poke = curry rtee (f, stack) ->
-  result = await cover f, stack
-  stack.shift()
-  stack.unshift result
-
-mpoke = curry rtee (f, stack) ->
-  result = await cover f, stack
-  stack.shift() for _ in [0..(arity f)]
-  stack.unshift result
-
-test = curry rtee (predicate, action, stack) ->
-  action stack if await cover predicate, stack
-
-branch = curry rtee ([conditions..., fallback], stack) ->
-  conditions.push fallback if !fallback.call?
-  for [ predicate, action ] in conditions
-    if await cover predicate, stack
-      await action stack
-      return
-  fallback stack
-
-dupe = tee (stack) -> stack.unshift stack[0]
-
-restore = curry rtee (f, stack) -> f [ stack... ]
-
-clear = (stack) -> []
-
-stack = (f) -> (args...) -> f args
-
-rack = curry rtee (g, f, stack) -> f g stack
-
-nth = curry rtee (n, f, stack) -> f stack[(n - 1)..]
+nth = curry (n, f, stack) -> f stack[(n - 1)..]
 
 second = nth 2
 
@@ -63,13 +37,16 @@ third = nth 3
 over = curry (f, [i, rest...]) ->
   f -> yield [ m, rest... ] for await m from i
 
+stack = (f) -> (args...) -> f args
+
+spread = (f) -> (ax) -> f ax...
+
 log = curry rtee (label, stack) -> console.log [label]: stack
 
-export {push, pop, peek, poke,
+export {apply, stack, spread,
+  push, pop, peek, poke,
   mpop, mpoke,
   test, branch,
-  restore, clear, dupe,
   rack, nth, second, third,
   over,
-  apply, cover, stack, spread,
   log}

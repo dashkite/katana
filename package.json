@@ -2,11 +2,13 @@
   "name": "@dashkite/katana",
   "version": "0.0.1",
   "description": "Stack-based composition combinators in JavaScript",
-  "main": "build/npm/src/index.js",
+  "main": "build/src/index.js",
   "dependencies": {
     "panda-garden": "^5.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
     "amen": "^3.0.0",
     "colors": "^1.4.0",
     "panda-9000": "^5.0.2",

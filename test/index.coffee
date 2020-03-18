@@ -2,14 +2,14 @@ import assert from "assert"
 import {print, test, success} from "amen"
 
 import {identity, wrap, curry, flow} from "panda-garden"
-import {push, pop, peek, poke,
-  test as check, branch,
+import {apply, stack, spread,
+  push, pop, peek, poke,
   mpop, mpoke,
-  restore, dupe, clear,
+  test as _test, branch,
   rack, nth, second, third,
   over,
-  apply, cover, stack, spread,
   log} from "../src"
+
 import {map, collect} from "panda-river"
 all = -> Promise.all arguments...
 
@@ -46,15 +46,15 @@ do ->
     test "predicate combinators", [
 
       test "test", ->
-        f = check identity, poke wrap 1
+        f = _test (apply identity), poke wrap 1
         assert.deepEqual [ 1 ], await f [ true ]
         assert.deepEqual [ false ], await f [ false ]
 
       test "branch", ->
         f = branch [
-          [ (compare 1), poke wrap 2 ]
-          [ (compare 2), poke wrap 3 ]
-          poke wrap 4
+          [ (apply compare 1), poke wrap 2 ]
+          [ (apply compare 2), poke wrap 3 ]
+          [ (wrap true), poke wrap 4 ]
         ]
         assert.deepEqual [ 2 ], await f [ 1 ]
         assert.deepEqual [ 3 ], await f [ 2 ]
@@ -76,20 +76,6 @@ do ->
 
     ]
 
-    test "stack mutators", [
-
-      test "restore", ->
-        f = restore poke wrap 1
-        assert.deepEqual [ 0 ], await f [ 0 ]
-
-      test "dupe", ->
-        assert.deepEqual [ 0, 0 ], dupe [ 0 ]
-
-      test "clear", ->
-        assert.equal 0, (clear [ 0 ]).length
-
-    ]
-
     test "stack adapters", [
 
       test "rack", ->
@@ -105,11 +91,16 @@ do ->
         f [4..6]
         assert.equal x, 6
 
+      test "tee", ->
+        # f = tee poke wrap 1
+        # assert.deepEqual [ 0 ], await f [ 0 ]
+
     ]
 
     test "stack iteration", [
 
       test "over", ->
+        {min} = Math
         multiply = (x, y) -> x * y
         f = over map mpoke multiply
         assert.deepEqual (await collect f [ [1..5], 2 ]),
@@ -120,11 +111,8 @@ do ->
     test "convenience combinators", [
 
       test "apply", ->
-        assert.equal true, apply identity, [ true ]
-
-      test "cover", ->
         f = (x, y) -> x + y
-        assert.equal 3, cover f, [1..5]
+        assert.equal 3, apply f, [1..5]
 
       test "stack", ->
         f = stack ([x, y]) -> x + y
