@@ -1,6 +1,6 @@
 {
   "name": "@dashkite/katana",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Stack-based composition combinators in JavaScript",
   "main": "build/src/index.js",
   "dependencies": {
