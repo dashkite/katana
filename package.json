@@ -19,7 +19,7 @@
   "author": "Dan Yoder",
   "main": "build/src/index.js",
   "files": [
-    "./build"
+    "build"
   ],
   "scripts": {
     "test": "p9k test"
