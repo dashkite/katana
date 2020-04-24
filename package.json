@@ -17,7 +17,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Dan Yoder",
-  "main": "build/npm/src/index.js",
+  "main": "build/src/index.js",
   "files": [
     "./build"
   ],
