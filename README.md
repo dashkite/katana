@@ -157,3 +157,50 @@ Takes a stack function and returns a non-stack function that will take an argume
 `spread f → f`
 
 Takes an non-stack function and returns a function that will take a stack, calling the original function with the elements of the stack as arguments.
+
+#### cast
+
+`cast f, array ⇢ any`
+
+Takes a function and an array of functions and returns a functon which applies as arguments to the first function the results of the functions in the given array. Both the first function and the array are passed the arguments that are passed into the returned function.
+
+Basically, given functions f, g, and h, shorthand for:
+
+```coffeescript
+stack flow [
+  push g
+  push h
+  mpoke f
+  last
+]
+```
+
+On the face of it, this might seem like an arbitrary pattern to encapsulate as a function. However, when composing functions, we sometimes want to “distribute“ the composition across multiple functions and combine them again into a single result. The `cast` function does exactly that.
+
+For example, suppose we have combinators for building up an HTTP request (like those in [Mercury](https://github.com/dashkite/mercury)):
+
+```coffeescript
+PublicAPI =
+  search:
+    flow [
+      use Fetch.client {mode: "cors"}
+      url "https://api.publicapis.org/entries"
+      query
+        title: "cat"
+  			category: "animals"
+      accept "application/json"
+      request
+      expect.status [ 200 ]
+      expect.media "application/json"
+      json
+      property "json"
+    ]
+```
+
+This returns a function that will give us all the animal APIs with _cat_ in the name. Suppose we want to be able to pass in the query parameters. We need a way for `query` to get its arguments dynamically somehow. This is where `cast` comes in. Since the `use` combinator places any arguments it gets into the `data` property of the request, we can use `cast` to pass them into `query`:
+
+```coffeescript
+cast query, [ property "data" ]
+```
+
+The composition has branched out. First we get the `data` property, then we pass that in, along with the request context we’re buidling, to `query`.
