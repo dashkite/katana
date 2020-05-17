@@ -1,4 +1,4 @@
-import {curry, pipe, tee as _tee, rtee} from "panda-garden"
+import {curry, pipe, tee, rtee, flow} from "panda-garden"
 
 _apply = curry (f, args) -> f.apply undefined, args
 _arity = (f) -> if f.length == 0 then 1 else f.length
@@ -43,10 +43,19 @@ spread = (f) -> (ax) -> f ax...
 
 log = curry rtee (label, stack) -> console.log [label]: stack
 
+# TODO why isn't this in parchment?
+reverse = (ax) -> ax.reverse()
+
+last = (ax) -> ax[ax.length - 1]
+
+cast = (g, fx) ->
+  stack flow [ (push f for f in reverse fx)..., (mpoke g), last ]
+
 export {apply, stack, spread,
   push, pop, peek, poke,
   mpop, mpoke,
   test, branch,
   rack, nth, second, third,
   over,
-  log}
+  log,
+  cast}

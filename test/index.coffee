@@ -8,7 +8,8 @@ import {apply, stack, spread,
   test as _test, branch,
   rack, nth, second, third,
   over,
-  log} from "../src"
+  log,
+  cast} from "../src"
 
 import {map, collect} from "panda-river"
 all = -> Promise.all arguments...
@@ -121,6 +122,13 @@ do ->
       test "spread", ->
         f = spread (x, y) -> x + y
         assert.equal 3, (f [1, 2])
+
+      test "cast", ->
+        f = (a, b) -> a + b
+        g = (b) -> b + "b"
+        h = cast f, [ g ]
+        assert.equal "aabaa", await h "aa"
+
     ]
 
   ]
