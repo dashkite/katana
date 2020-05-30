@@ -6,6 +6,9 @@ import {apply, stack, spread,
   push, pop, peek, poke,
   mpop, mpoke,
   test as _test, branch,
+  spush, spop, speek, spoke,
+  stest, sbranch,
+  smpop, smpoke,
   rack, nth, second, third,
   over,
   log,
@@ -42,6 +45,25 @@ do ->
         f = poke wrap 1
         assert.deepEqual [ 1 ], await f [ 0 ]
 
+      test "spush", ->
+        f = spush wrap 0
+        assert.deepEqual [ 0 ], f []
+
+      test "spop", ->
+        x = 0
+        f = spop -> x = 1
+        assert.deepEqual [], f [ 0 ]
+        assert.equal x, 1
+
+      test "speek", ->
+        x = 0
+        f = speek -> x = 1
+        assert.deepEqual [ 0 ], f [ 0 ]
+        assert.equal x, 1
+
+      test "spoke", ->
+        f = spoke wrap 1
+        assert.deepEqual [ 1 ], f [ 0 ]
     ]
 
     test "predicate combinators", [
@@ -61,6 +83,21 @@ do ->
         assert.deepEqual [ 3 ], await f [ 2 ]
         assert.deepEqual [ 4 ], await f [ 3 ]
 
+      test "stest", ->
+        f = stest (apply identity), spoke wrap 1
+        assert.deepEqual [ 1 ], f [ true ]
+        assert.deepEqual [ false ], f [ false ]
+
+      test "sbranch", ->
+        f = sbranch [
+          [ (apply compare 1), spoke wrap 2 ]
+          [ (apply compare 2), spoke wrap 3 ]
+          [ (wrap true), spoke wrap 4 ]
+        ]
+        assert.deepEqual [ 2 ], f [ 1 ]
+        assert.deepEqual [ 3 ], f [ 2 ]
+        assert.deepEqual [ 4 ], f [ 3 ]
+
     ]
 
     test "arity combinators", [
@@ -74,6 +111,16 @@ do ->
       test "mpoke", ->
         f = mpoke (x, y) -> x + y
         assert.deepEqual [ 3 ], await f [ 1, 2 ]
+
+      test "mpop", ->
+        x = 0
+        f = smpop (y, z) -> x = y + z
+        assert.deepEqual [], f [ 1, 2 ]
+        assert.equal x, 3
+
+      test "mpoke", ->
+        f = smpoke (x, y) -> x + y
+        assert.deepEqual [ 3 ], f [ 1, 2 ]
 
     ]
 
