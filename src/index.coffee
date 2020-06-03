@@ -1,4 +1,4 @@
-import {curry, flow} from "panda-garden"
+import {curry, flow, pipe} from "@pandastrike/garden"
 
 _apply = curry (f, args) -> f.apply undefined, args
 _arity = (f) -> if f.length == 0 then 1 else f.length
@@ -72,6 +72,10 @@ last = (ax) -> ax[ax.length - 1]
 cast = (g, fx) ->
   stack flow [ (push f for f in reverse fx)..., (mpoke g), last ]
 
+scast = (g, fx) ->
+  stack pipe [ (spush f for f in reverse fx)..., (smpoke g), last ]
+
+
 export {apply, stack, spread,
   push, pop, peek, poke,
   mpop, mpoke,
@@ -80,6 +84,5 @@ export {apply, stack, spread,
   smpop, smpoke,
   stest, sbranch,
   rack, nth, second, third,
-  over,
-  log,
-  cast}
+  over, cast, scast,
+  log}

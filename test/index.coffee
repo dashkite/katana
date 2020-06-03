@@ -1,7 +1,7 @@
 import assert from "assert"
 import {print, test, success} from "amen"
 
-import {identity, wrap, curry, flow} from "panda-garden"
+import {identity, wrap, curry, flow} from "@pandastrike/garden"
 import {apply, stack, spread,
   push, pop, peek, poke,
   mpop, mpoke,
