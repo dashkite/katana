@@ -3,16 +3,16 @@ import {print, test, success} from "amen"
 
 import {identity, wrap, curry, flow} from "@pandastrike/garden"
 import {apply, stack, spread,
-  push, pop, peek, poke,
+  push, pop, peek, poke, pushn
   mpop, mpoke,
   test as _test, branch,
-  spush, spop, speek, spoke,
+  spush, spop, speek, spoke, spushn
   stest, sbranch,
   smpop, smpoke,
   rack, nth, second, third,
   over,
-  log,
-  cast} from "../src"
+  log
+  } from "../src"
 
 import {map, collect} from "panda-river"
 all = -> Promise.all arguments...
@@ -23,7 +23,7 @@ do ->
 
   print await test "Katana", [
 
-    test "core combinators", [
+    test "core", [
 
       test "push", ->
         f = push wrap 0
@@ -45,6 +45,14 @@ do ->
         f = poke wrap 1
         assert.deepEqual [ 1 ], await f [ 0 ]
 
+      test "pushn", ->
+        incr = (x) -> ++x
+        f = pushn [
+          incr
+          incr
+        ]
+        assert.deepEqual [ 1, 1, 0 ], await f [ 0 ]
+
       test "spush", ->
         f = spush wrap 0
         assert.deepEqual [ 0 ], f []
@@ -64,9 +72,18 @@ do ->
       test "spoke", ->
         f = spoke wrap 1
         assert.deepEqual [ 1 ], f [ 0 ]
+
+      test "spushn", ->
+        incr = (x) -> ++x
+        f = spushn [
+          incr
+          incr
+        ]
+        assert.deepEqual [ 1, 1, 0 ], await f [ 0 ]
+
     ]
 
-    test "predicate combinators", [
+    test "predicates", [
 
       test "test", ->
         f = _test (apply identity), poke wrap 1
@@ -100,7 +117,7 @@ do ->
 
     ]
 
-    test "arity combinators", [
+    test "arity", [
 
       test "mpop", ->
         x = 0
@@ -124,7 +141,7 @@ do ->
 
     ]
 
-    test "stack adapters", [
+    test "adapters", [
 
       test "rack", ->
         x = 0
@@ -145,7 +162,7 @@ do ->
 
     ]
 
-    test "stack iteration", [
+    test "iteration", [
 
       test "over", ->
         {min} = Math
@@ -156,7 +173,7 @@ do ->
 
     ]
 
-    test "convenience combinators", [
+    test "convenience", [
 
       test "apply", ->
         f = (x, y) -> x + y
@@ -169,12 +186,6 @@ do ->
       test "spread", ->
         f = spread (x, y) -> x + y
         assert.equal 3, (f [1, 2])
-
-      test "cast", ->
-        f = (a, b) -> a + b
-        g = (b) -> b + "b"
-        h = cast f, [ g ]
-        assert.equal "aabaa", await h "aa"
 
     ]
 

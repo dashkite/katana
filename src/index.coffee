@@ -9,6 +9,8 @@ push = curry (f, stack) -> [ (await apply f, stack), stack... ]
 pop = curry (f, stack) -> await apply f, stack ; stack[1..]
 peek = curry (f, stack) -> await apply f, stack ; stack
 poke = curry (f, stack) -> [ (await apply f, stack), stack[1..]... ]
+pushn = curry (fx, stack) ->
+  [ (await Promise.all ((apply f, stack) for f from fx))..., stack... ]
 
 # m* variants
 mpop = curry (f, stack) -> await apply f, stack ; stack[(_arity f)..]
@@ -31,6 +33,8 @@ spush = curry (f, stack) -> [ (apply f, stack), stack... ]
 spop = curry (f, stack) -> apply f, stack ; stack[1..]
 speek = curry (f, stack) -> apply f, stack ; stack
 spoke = curry (f, stack) -> [ (apply f, stack), stack[1..]... ]
+spushn = curry (fx, stack) ->
+  [ ((apply f, stack) for f from fx)..., stack... ]
 
 smpop = curry (f, stack) -> apply f, stack ; stack[(_arity f)..]
 smpoke = curry (f, stack) -> [ (apply f, stack), stack[(_arity f)..]... ]
@@ -69,20 +73,14 @@ reverse = (ax) -> ax.reverse()
 
 last = (ax) -> ax[ax.length - 1]
 
-cast = (g, fx) ->
-  stack flow [ (push f for f in reverse fx)..., (mpoke g), last ]
-
-scast = (g, fx) ->
-  stack pipe [ (spush f for f in reverse fx)..., (smpoke g), last ]
-
 
 export {apply, stack, spread,
-  push, pop, peek, poke,
+  push, pop, peek, poke, pushn
   mpop, mpoke,
   test, branch,
-  spush, spop, speek, spoke,
+  spush, spop, speek, spoke, spushn
   smpop, smpoke,
   stest, sbranch,
   rack, nth, second, third,
-  over, cast, scast,
+  over,
   log}
