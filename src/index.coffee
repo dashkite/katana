@@ -17,14 +17,14 @@ mpop = curry (f, stack) -> await apply f, stack ; stack[(_arity f)..]
 mpoke = curry (f, stack) -> [ (await apply f, stack), stack[(_arity f)..]... ]
 
 test = curry (predicate, action, stack) ->
-  if await predicate stack
+  if await apply predicate, stack
     action stack
   else
     stack
 
 branch = curry (conditions, stack) ->
   for [predicate, action] in conditions
-    if await predicate stack
+    if await apply predicate, stack
       return action stack
   stack
 
@@ -40,14 +40,14 @@ smpop = curry (f, stack) -> apply f, stack ; stack[(_arity f)..]
 smpoke = curry (f, stack) -> [ (apply f, stack), stack[(_arity f)..]... ]
 
 stest = curry (predicate, action, stack) ->
-  if predicate stack
+  if apply predicate, stack
     action stack
   else
     stack
 
 sbranch = curry (conditions, stack) ->
   for [predicate, action] in conditions
-    if predicate stack
+    if apply predicate, stack
       return action stack
   stack
 

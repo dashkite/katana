@@ -86,14 +86,14 @@ do ->
     test "predicates", [
 
       test "test", ->
-        f = _test (apply identity), poke wrap 1
+        f = _test identity, poke wrap 1
         assert.deepEqual [ 1 ], await f [ true ]
         assert.deepEqual [ false ], await f [ false ]
 
       test "branch", ->
         f = branch [
-          [ (apply compare 1), poke wrap 2 ]
-          [ (apply compare 2), poke wrap 3 ]
+          [ (compare 1), poke wrap 2 ]
+          [ (compare 2), poke wrap 3 ]
           [ (wrap true), poke wrap 4 ]
         ]
         assert.deepEqual [ 2 ], await f [ 1 ]
@@ -101,14 +101,14 @@ do ->
         assert.deepEqual [ 4 ], await f [ 3 ]
 
       test "stest", ->
-        f = stest (apply identity), spoke wrap 1
+        f = stest identity, spoke wrap 1
         assert.deepEqual [ 1 ], f [ true ]
         assert.deepEqual [ false ], f [ false ]
 
       test "sbranch", ->
         f = sbranch [
-          [ (apply compare 1), spoke wrap 2 ]
-          [ (apply compare 2), spoke wrap 3 ]
+          [ (compare 1), spoke wrap 2 ]
+          [ (compare 2), spoke wrap 3 ]
           [ (wrap true), spoke wrap 4 ]
         ]
         assert.deepEqual [ 2 ], f [ 1 ]
