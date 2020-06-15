@@ -1,6 +1,6 @@
 {
   "name": "@dashkite/katana",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "description": "Stack-based composition combinators in JavaScript",
   "keywords": [
     "stack",
