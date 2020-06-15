@@ -89,6 +89,8 @@ do ->
         f = _test identity, poke wrap 1
         assert.deepEqual [ 1 ], await f [ true ]
         assert.deepEqual [ false ], await f [ false ]
+        # test a truthy value: should leave stack unchanged
+        assert.deepEqual [ -1 ], await f [ -1 ]
 
       test "branch", ->
         f = branch [
@@ -104,6 +106,8 @@ do ->
         f = stest identity, spoke wrap 1
         assert.deepEqual [ 1 ], f [ true ]
         assert.deepEqual [ false ], f [ false ]
+        # test a truthy value: should leave stack unchanged
+        assert.deepEqual [ -1 ], f [ -1 ]
 
       test "sbranch", ->
         f = sbranch [
