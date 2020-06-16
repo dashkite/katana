@@ -1,4 +1,4 @@
-import {curry, flow, pipe} from "@pandastrike/garden"
+import {curry} from "@pandastrike/garden"
 
 _apply = curry (f, args) -> f.apply undefined, args
 _arity = (f) -> if f.length == 0 then 1 else f.length

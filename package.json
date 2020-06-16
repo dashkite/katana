@@ -25,7 +25,7 @@
     "test": "p9k test"
   },
   "dependencies": {
-    "@pandastrike/garden": "^7.0.1"
+    "@pandastrike/garden": "^8.0.0-alpha.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
