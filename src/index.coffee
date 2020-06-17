@@ -1,8 +1,13 @@
 import {curry} from "@pandastrike/garden"
 
+# first, a simple function wrapper for f.apply
 _apply = curry (f, args) -> f.apply undefined, args
+# second, a simple arity function
 _arity = (f) -> if f.length == 0 then 1 else f.length
+# third, a stack-aware version of apply
 apply = curry (f, stack) ->  _apply f, stack[0..(_arity f)]
+# simple helper for use with read/write
+last = (ax) -> ax[ax.length - 1]
 
 # general variants
 push = curry (f, stack) -> [ (await apply f, stack), stack... ]
@@ -11,6 +16,11 @@ peek = curry (f, stack) -> await apply f, stack ; stack
 poke = curry (f, stack) -> [ (await apply f, stack), stack[1..]... ]
 pushn = curry (fx, stack) ->
   [ (await Promise.all ((apply f, stack) for f from fx))..., stack... ]
+
+read = curry (name, stack) -> [ (last stack)[name], stack... ]
+write = curry (name, f, stack) ->
+  (last stack)[name] = await apply f, stack
+  stack
 
 # m* variants
 mpop = curry (f, stack) -> await apply f, stack ; stack[(_arity f)..]
@@ -35,6 +45,9 @@ speek = curry (f, stack) -> apply f, stack ; stack
 spoke = curry (f, stack) -> [ (apply f, stack), stack[1..]... ]
 spushn = curry (fx, stack) ->
   [ ((apply f, stack) for f from fx)..., stack... ]
+swrite = curry (name, f, stack) ->
+  (last stack)[name] = apply f, stack
+  stack
 
 smpop = curry (f, stack) -> apply f, stack ; stack[(_arity f)..]
 smpoke = curry (f, stack) -> [ (apply f, stack), stack[(_arity f)..]... ]
@@ -51,14 +64,6 @@ sbranch = curry (conditions, stack) ->
       return action stack
   stack
 
-rack = curry (g, f, stack) -> f g stack
-
-nth = curry (n, f, stack) -> f stack[(n - 1)..]
-
-second = nth 2
-
-third = nth 3
-
 over = curry (f, [i, rest...]) ->
   f -> yield [ m, rest... ] for await m from i
 
@@ -68,19 +73,13 @@ spread = (f) -> (ax) -> f ax...
 
 log = curry (label, stack) -> console.log [label]: stack ; stack
 
-# TODO why isn't this in parchment?
-reverse = (ax) -> ax.reverse()
-
-last = (ax) -> ax[ax.length - 1]
-
-
 export {apply, stack, spread,
-  push, pop, peek, poke, pushn
+  push, pop, peek, poke, pushn,
+  read, write,
   mpop, mpoke,
   test, branch,
   spush, spop, speek, spoke, spushn
+  swrite,
   smpop, smpoke,
   stest, sbranch,
-  rack, nth, second, third,
-  over,
-  log}
+  over, log}

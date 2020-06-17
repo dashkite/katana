@@ -4,12 +4,13 @@ import {print, test, success} from "amen"
 import {identity, wrap, curry, flow} from "@pandastrike/garden"
 import {apply, stack, spread,
   push, pop, peek, poke, pushn
-  mpop, mpoke,
-  test as _test, branch,
+  read, write
+  mpop, mpoke
+  test as atest, branch,
   spush, spop, speek, spoke, spushn
+  swrite
   stest, sbranch,
   smpop, smpoke,
-  rack, nth, second, third,
   over,
   log
   } from "../src"
@@ -53,6 +54,14 @@ do ->
         ]
         assert.deepEqual [ 1, 1, 0 ], await f [ 0 ]
 
+      test "read", ->
+        f = read "foo"
+        assert.deepEqual [ "bar", foo: "bar" ], f [ foo: "bar" ]
+
+      test "write", ->
+        f = write "foo", -> "bar"
+        assert.deepEqual [ foo: "bar" ], await f [{}]
+
       test "spush", ->
         f = spush wrap 0
         assert.deepEqual [ 0 ], f []
@@ -83,10 +92,14 @@ do ->
 
     ]
 
+      test "swrite", ->
+        f = swrite "foo", -> "bar"
+        assert.deepEqual [ foo: "bar" ], f [{}]
+
     test "predicates", [
 
       test "test", ->
-        f = _test identity, poke wrap 1
+        f = atest identity, poke wrap 1
         assert.deepEqual [ 1 ], await f [ true ]
         assert.deepEqual [ false ], await f [ false ]
         # test a truthy value: should leave stack unchanged
@@ -142,27 +155,6 @@ do ->
       test "mpoke", ->
         f = smpoke (x, y) -> x + y
         assert.deepEqual [ 3 ], f [ 1, 2 ]
-
-    ]
-
-    test "adapters", [
-
-      test "rack", ->
-        x = 0
-        reverse = (stack) -> stack.reverse()
-        f = rack reverse, peek (y) -> x = y
-        f [1..3]
-        assert.equal x, 3
-
-      test "nth, second, third", ->
-        x = 0
-        f = third peek (y) -> x = y
-        f [4..6]
-        assert.equal x, 6
-
-      test "tee", ->
-        # f = tee poke wrap 1
-        # assert.deepEqual [ 0 ], await f [ 0 ]
 
     ]
 
