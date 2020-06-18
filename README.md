@@ -34,11 +34,9 @@ Function composition is a powerful tool in theory, but in practice, it's often d
 
 When we _apply_ a function in a stack context, we use the arity of the function to determine how many elements from the stack to pass into the function. Applying a unary function will result in passing the top of the stack into the function. Applying a binary function will result in passing the first two elements from the stack into the function, and so on.
 
-By convention, functions prefixed with an _s_ are synchronous variants, ex: `spop`. Functions prefixed with an _m_ will alter the stack based on the arity of the given function, ex: `mpop`. These may be combined, ex: `smpop`. The unprefixed functions are asynchronous—that is, they will await on the given function—and only add, replace, or remove one element from the top of the stack, regardless of the arity of the function.
-
-The _context_ of the stack is, by convention, the bottom of the stack. The `read` and `write` functions operate on this element. This allows you to write stack functions that are independent of the state of the stack.
-
 ### Core
+
+Functions prefixed with an _s_ are synchronous variants, ex: `spop`. Functions prefixed with an _m_ will alter the stack based on the arity of the given function, ex: `mpop`. These may be combined, ex: `smpop`. The unprefixed functions are asynchronous—that is, they will await on the given function—and only add, replace, or remove one element from the top of the stack, regardless of the arity of the function.
 
 #### push fn | spush fn
 
@@ -62,13 +60,15 @@ Like `push`, but for an array of functions, pushing the result of each onto the 
 
 ### Context
 
+The _context_ of the stack is, by convention, the bottom of the stack. The `read` and `write` functions operate on this element. This allows you to write stack functions that are independent of the state of the stack.
+
 #### read name
 
-Reads a property from the context (an object at the bottom of the stack) and pushes it.
+Reads a property from the context and pushes it.
 
-#### write name, fn | swrite name, fn
+#### write name
 
-Writes a property to the context (an object at the bottom of the stack) by applying a given function.
+Writes the element at the top of the stack to the context.
 
 ### Predicates
 
@@ -94,6 +94,10 @@ assert.equal [1, 9, 25], await f [1..5]
 ```
 
 ### Convenience
+
+#### discard
+
+Discard the element at the top of the stack. Equvalent to `pop ->` but faster and there’s no need for a synchronous variant.
 
 #### apply fn
 

@@ -4,11 +4,10 @@ import {print, test, success} from "amen"
 import {identity, wrap, curry, flow} from "@pandastrike/garden"
 import {apply, stack, spread,
   push, pop, peek, poke, pushn
-  read, write
+  read, write, discard
   mpop, mpoke
   test as atest, branch,
   spush, spop, speek, spoke, spushn
-  swrite
   stest, sbranch,
   smpop, smpoke,
   over,
@@ -59,8 +58,11 @@ do ->
         assert.deepEqual [ "bar", foo: "bar" ], f [ foo: "bar" ]
 
       test "write", ->
-        f = write "foo", -> "bar"
-        assert.deepEqual [ foo: "bar" ], await f [{}]
+        f = write "foo"
+        assert.deepEqual [ "bar", foo: "bar" ], f [ "bar", {} ]
+
+      test "discard", ->
+        assert.deepEqual [], discard [ 1 ]
 
       test "spush", ->
         f = spush wrap 0
@@ -91,10 +93,6 @@ do ->
         assert.deepEqual [ 1, 1, 0 ], await f [ 0 ]
 
     ]
-
-      test "swrite", ->
-        f = swrite "foo", -> "bar"
-        assert.deepEqual [ foo: "bar" ], f [{}]
 
     test "predicates", [
 
