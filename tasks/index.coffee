@@ -1,60 +1,26 @@
-import {spawn} from "child_process"
-import {join, resolve, relative} from "path"
-
-# TODO I don't really understand why this needs a require
-p9k = require "panda-9000"
-
-import {rmr} from "panda-quill"
-import {go, map, wait, tee, reject} from "panda-river"
+import * as t from "@dashkite/genie"
+import * as b from "@dashkite/brick"
+import * as q from "panda-quill"
 import coffee from "coffeescript"
 
-{define, run, glob, read, write,
-  extension, copy, watch} = p9k
+t.define "clean", -> q.rmr "build"
 
-# TODO we really need a solid shell abstraction for quill
-shell = (command, path = ".") ->
-  child = spawn command,
-    shell: true
-    cwd: resolve process.cwd(), path
-    stdio: "inherit"
+t.define "build", "clean", b.start [
+  b.glob [ "{src,test}/**/*.coffee" ], "."
+  b.read
+  b.tr ({path}, code) ->
+    coffee.compile code,
+      bare: true
+      inlineMap: true
+      filename: path
+      transpile:
+        presets: [[
+          "@babel/preset-env"
+          targets: node: "current"
+        ]]
+  b.extension ".js"
+  b.write "build"
+]
 
-local = (path) ->
-  require.resolve path, paths: [ process.cwd() ]
-
-compile = tee ({source, target}) ->
-  target.content = coffee.compile source.content,
-    bare: true
-    inlineMap: true
-    filename: join "..", relative ".", source.path
-    transpile:
-      presets: [[
-        local "@babel/preset-env"
-        targets: node: "current"
-      ]]
-
-define "build", [ "clean", "js&"]
-
-define "clean", -> rmr "build"
-
-define "js", ->
-  go [
-    glob [ "**/*.coffee" ], "./src"
-    wait map read
-    compile
-    map extension ".js"
-    map write "./build/src"
-  ]
-
-define "test:js", ->
-  go [
-    glob [ "**/*.coffee" ], "./test"
-    wait map read
-    compile
-    map extension ".js"
-    map write "./build/test"
-  ]
-
-define "test:run", ->
-  shell "node --enable-source-maps build/test/index.js"
-
-define "test", [ "build", "test:js", "test:run" ]
+t.define "test", "build", ->
+  b.node "build/test/index.js", [ "--enable-source.maps" ]
