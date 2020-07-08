@@ -5,7 +5,9 @@ _apply = curry (f, args) -> f.apply undefined, args
 # second, a simple arity function
 _arity = (f) -> if f.length == 0 then 1 else f.length
 # third, a stack-aware version of apply
-apply = curry (f, stack) ->  _apply f, stack[0..(_arity f)]
+apply = curry (f, stack) ->
+  n = (_arity f) - 1
+  _apply f, stack[0..n]
 # simple helper for use with read/write
 last = (ax) -> ax[ax.length - 1]
 

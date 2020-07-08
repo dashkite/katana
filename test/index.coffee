@@ -183,4 +183,12 @@ do ->
 
     ]
 
+  test "boundary conditions", [
+
+    test "too many arguments", ->
+      f = (a) -> Array.from arguments
+      g = spush f
+      assert.deepEqual [[ 1 ], 1, 2 ], g [ 1, 2 ]
+  ]
+
   ]
