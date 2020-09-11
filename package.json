@@ -18,7 +18,9 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Dan Yoder",
   "main": "build/src/index.js",
+  "main:coffee": "src/index.coffee",
   "files": [
+    "src",
     "build/src"
   ],
   "scripts": {
