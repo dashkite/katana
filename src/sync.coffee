@@ -41,8 +41,8 @@ branch = _.curry daisho (conditions, daisho) ->
       return action daisho
   daisho
 
-copy = _.curry _.binary daisho clone (f, daisho, original) ->
-  daisho.copy f original
+assign = _.curry _.binary daisho clone (f, daisho, original) ->
+  daisho.assign f original
 
 read = _.curry daisho clone (name, daisho) ->
   daisho.push daisho.read name
@@ -50,8 +50,11 @@ read = _.curry daisho clone (name, daisho) ->
 write = _.curry daisho clone (name, daisho) ->
   daisho.write name, daisho.peek()
 
-context = daisho clone (daisho) ->
-  daisho.push daisho._context
+stack = daisho clone (daisho) -> daisho.push daisho.stack
+
+context = daisho clone (daisho) -> daisho.push daisho.context
+
+get = daisho (daisho) -> daisho.pop()
 
 export {
   push
@@ -64,8 +67,9 @@ export {
   mpoke
   test
   branch
-  copy
+  assign
   read
   write
   context
+  get
 }

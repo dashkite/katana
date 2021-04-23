@@ -3,17 +3,7 @@ import {print, test, success} from "amen"
 import * as _ from "@dashkite/joy"
 import * as $ from "../src/sync"
 import { Daisho } from "../src/daisho"
-
-verify = (expected, actual) ->
-  assert.deepEqual expected, actual._stack
-
-verify.stack = (expected, actual) ->
-  assert.deepEqual expected, actual._stack
-
-verify.context = (expected, actual) ->
-  assert.deepEqual expected, actual._context
-
-compare = _.curry (x, y) -> x == y
+import { verify, compare } from "./helpers"
 
 results = test "sync", [
 
@@ -21,12 +11,12 @@ results = test "sync", [
 
     test "push", ->
       f = $.push _.wrap 0
-      verify [ 0 ], f []
+      verify.stack [ 0 ], f []
 
     test "pop", ->
       x = 0
       f = $.pop (y) -> x = y
-      verify [], f [ 1 ]
+      verify.stack [], f [ 1 ]
       assert.equal x, 1
 
     test "discard", ->
@@ -35,12 +25,12 @@ results = test "sync", [
     test "peek", ->
       x = 0
       f = $.peek (y) -> x = y
-      verify [ 1 ], f [ 1 ]
+      verify.stack [ 1 ], f [ 1 ]
       assert.equal x, 1
 
     test "poke", ->
       f = $.poke _.wrap 1
-      verify [ 1 ], f [ 0 ]
+      verify.stack [ 1 ], f [ 0 ]
 
     test "pushn", ->
       incr = (x) -> ++x
@@ -48,24 +38,24 @@ results = test "sync", [
         incr
         incr
       ]
-      verify [ 1, 1, 0 ], f [ 0 ]
+      verify.stack [ 1, 1, 0 ], f [ 0 ]
 
     test "mpop", ->
       x = 0
       f = $.mpop (y, z) -> x = y + z
-      verify [], f [ 1, 2 ]
+      verify.stack [], f [ 1, 2 ]
       assert.equal x, 3
 
     test "mpoke", ->
       f = $.mpoke (x, y) -> x + y
-      verify [ 3 ], f [ 1, 2 ]
+      verify.stack [ 3 ], f [ 1, 2 ]
 
   ]
 
   test "context operators", [
 
-    test "copy", ->
-      f = $.copy _.pipe [
+    test "assign", ->
+      f = $.assign _.pipe [
         $.push -> "bar"
         $.write "foo"
       ]
@@ -89,21 +79,19 @@ results = test "sync", [
   test "predicates", [
 
     test "test", ->
-      f = $.test _.identity, $.poke _.wrap 1
-      verify [ 1 ], f [ true ]
-      verify [ false ], f [ false ]
+      f = $.test _.identity, $.poke _.wrap "foo"
+      verify.stack [ "foo" ], await f [ true ]
+      verify.stack [ false ], await f [ false ]
       # test a truthy value: should leave stack unchanged
-      verify [ -1 ], f [ -1 ]
+      verify.stack [ "bar" ], await f [ "bar" ]
 
     test "branch", ->
       f = $.branch [
-        [ (compare 1), $.poke _.wrap 2 ]
-        [ (compare 2), $.poke _.wrap 3 ]
-        [ (_.wrap true), $.poke _.wrap 4 ]
+        [ _.identity, $.poke _.wrap "foo" ]
+        [ (_.wrap true), $.poke _.wrap "bar" ]
       ]
-      verify [ 2 ], f [ 1 ]
-      verify [ 3 ], f [ 2 ]
-      verify [ 4 ], f [ 3 ]
+      verify.stack [ "foo" ], await f [ true ]
+      verify.stack [ "bar" ], await f [ false ]
 
 
   ]

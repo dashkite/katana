@@ -23,9 +23,9 @@ mpop = _.curry daisho clone _.rtee (f, daisho) ->
   daisho.popn arity f
 
 mpoke = _.curry _.binary daisho clone (f, daisho, original) ->
+  # console.log result: await original.apply f
   daisho.popn arity f
   daisho.push await original.apply f
-  daisho
 
 test = _.curry daisho (predicate, action, daisho) ->
   if (await daisho.apply predicate) == true
@@ -39,21 +39,17 @@ branch = _.curry daisho (conditions, daisho) ->
       return action daisho
   daisho
 
-copy = _.curry _.binary daisho clone (f, daisho, original) ->
-  daisho.copy await f original
-
-read = _.curry daisho clone (name, daisho) ->
-  daisho.push daisho.read name
-
-write = _.curry daisho clone (name, daisho) ->
-  daisho.write name, daisho.peek()
+assign = _.curry _.binary daisho clone (f, daisho, original) ->
+  daisho.assign await f original
 
 # so that you don't have to import these separately
 export {
   discard
   read
   write
+  stack
   context
+  get
 } from "./sync"
 
 export {
@@ -66,5 +62,5 @@ export {
   mpoke
   test
   branch
-  copy
+  assign
 }

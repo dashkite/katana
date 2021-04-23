@@ -2,17 +2,7 @@ import assert from "assert"
 import {print, test, success} from "amen"
 import * as _ from "@dashkite/joy"
 import * as $ from "../src/async"
-
-compare = _.curry (x, y) -> x == y
-
-verify = (expected, actual) ->
-  assert.deepEqual expected, actual._stack
-
-verify.stack = (expected, actual) ->
-  assert.deepEqual expected, actual._stack
-
-verify.context = (expected, actual) ->
-  assert.deepEqual expected, actual._context
+import { verify, compare } from "./helpers"
 
 results = test "async", [
 
@@ -60,8 +50,8 @@ results = test "async", [
 
   test "context operators", [
 
-    test "copy", ->
-      f = $.copy _.flow [
+    test "assign", ->
+      f = $.assign _.flow [
         $.push -> "bar"
         $.write "foo"
       ]
@@ -70,25 +60,26 @@ results = test "async", [
 
   ]
 
-  test "predicates", [
+  test "predicates", do ->
 
-    test "test", ->
-      f = $.test _.identity, $.poke _.wrap 1
-      verify.stack [ 1 ], await f [ true ]
-      verify.stack [ false ], await f [ false ]
-      # test a truthy value: should leave stack unchanged
-      verify.stack [ -1 ], await f [ -1 ]
+    promised = (x) -> Promise.resolve x
 
-    test "branch", ->
-      f = $.branch [
-        [ (compare 1), $.poke _.wrap 2 ]
-        [ (compare 2), $.poke _.wrap 3 ]
-        [ (_.wrap true), $.poke _.wrap 4 ]
-      ]
-      verify.stack [ 2 ], await f [ 1 ]
-      verify.stack [ 3 ], await f [ 2 ]
-      verify.stack [ 4 ], await f [ 3 ]
+    [
 
+      test "test", ->
+        f = $.test promised, $.poke _.wrap "foo"
+        verify.stack [ "foo" ], await f [ true ]
+        verify.stack [ false ], await f [ false ]
+        # test a truthy value: should leave stack unchanged
+        verify.stack [ "bar" ], await f [ "bar" ]
+
+      test "branch", ->
+        f = $.branch [
+          [ promised, $.poke _.wrap "foo" ]
+          [ (_.wrap true), $.poke _.wrap "bar" ]
+        ]
+        verify.stack [ "foo" ], await f [ true ]
+        verify.stack [ "bar" ], await f [ false ]
 
   ]
 
