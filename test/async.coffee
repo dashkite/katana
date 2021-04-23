@@ -5,29 +5,38 @@ import * as $ from "../src/async"
 
 compare = _.curry (x, y) -> x == y
 
+verify = (expected, actual) ->
+  assert.deepEqual expected, actual._stack
+
+verify.stack = (expected, actual) ->
+  assert.deepEqual expected, actual._stack
+
+verify.context = (expected, actual) ->
+  assert.deepEqual expected, actual._context
+
 results = test "async", [
 
   test "stack operators", [
 
     test "push", ->
       f = $.push _.wrap 0
-      assert.deepEqual [ 0 ], await f []
+      verify.stack [ 0 ], await f []
 
     test "pop", ->
       x = 0
       f = $.pop -> x = 1
-      assert.deepEqual [], await f [ 0 ]
+      verify.stack [], await f [ 0 ]
       assert.equal x, 1
 
     test "peek", ->
       x = 0
       f = $.peek -> x = 1
-      assert.deepEqual [ 0 ], await f [ 0 ]
+      verify.stack [ 0 ], await f [ 0 ]
       assert.equal x, 1
 
     test "poke", ->
       f = $.poke _.wrap 1
-      assert.deepEqual [ 1 ], await f [ 0 ]
+      verify.stack [ 1 ], await f [ 0 ]
 
     test "pushn", ->
       incr = (x) -> ++x
@@ -35,40 +44,29 @@ results = test "async", [
         incr
         incr
       ]
-      assert.deepEqual [ 1, 1, 0 ], await f [ 0 ]
+      verify.stack [ 1, 1, 0 ], await f [ 0 ]
 
     test "mpop", ->
       x = 0
       f = $.mpop (y, z) -> x = y + z
-      assert.deepEqual [], await f [ 1, 2 ]
+      verify.stack [], await f [ 1, 2 ]
       assert.equal x, 3
 
     test "mpoke", ->
       f = $.mpoke (x, y) -> x + y
-      assert.deepEqual [ 3 ], await f [ 1, 2 ]
-
-    test "discard", ->
-      assert.deepEqual [], $.discard [ 1 ]
+      verify.stack [ 3 ], await f [ 1, 2 ]
 
   ]
 
   test "context operators", [
-
-    test "read", ->
-      f = $.read "foo"
-      assert.deepEqual [ "bar", foo: "bar" ], f [ foo: "bar" ]
-
-    test "write", ->
-      f = $.write "foo"
-      assert.deepEqual [ "bar", foo: "bar" ], f [ "bar", {} ]
 
     test "copy", ->
       f = $.copy _.flow [
         $.push -> "bar"
         $.write "foo"
       ]
-      assert.deepEqual [ foo: "bar" ], await f [ {} ]
-
+      verify.stack [], await f []
+      verify.context foo: "bar", await f []
 
   ]
 
@@ -76,10 +74,10 @@ results = test "async", [
 
     test "test", ->
       f = $.test _.identity, $.poke _.wrap 1
-      assert.deepEqual [ 1 ], await f [ true ]
-      assert.deepEqual [ false ], await f [ false ]
+      verify.stack [ 1 ], await f [ true ]
+      verify.stack [ false ], await f [ false ]
       # test a truthy value: should leave stack unchanged
-      assert.deepEqual [ -1 ], await f [ -1 ]
+      verify.stack [ -1 ], await f [ -1 ]
 
     test "branch", ->
       f = $.branch [
@@ -87,9 +85,9 @@ results = test "async", [
         [ (compare 2), $.poke _.wrap 3 ]
         [ (_.wrap true), $.poke _.wrap 4 ]
       ]
-      assert.deepEqual [ 2 ], await f [ 1 ]
-      assert.deepEqual [ 3 ], await f [ 2 ]
-      assert.deepEqual [ 4 ], await f [ 3 ]
+      verify.stack [ 2 ], await f [ 1 ]
+      verify.stack [ 3 ], await f [ 2 ]
+      verify.stack [ 4 ], await f [ 3 ]
 
 
   ]

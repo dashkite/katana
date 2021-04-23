@@ -1,39 +1,62 @@
 import * as _ from "@dashkite/joy/function"
-import { arity, apply } from "./helpers"
 
-push = _.curry (f, stack) -> [ (apply f, stack), stack... ]
-pop = _.curry (f, stack) -> apply f, stack ; stack[1..]
-peek = _.curry (f, stack) -> apply f, stack ; stack
-poke = _.curry (f, stack) -> [ (apply f, stack), stack[1..]... ]
-pushn = _.curry (fx, stack) ->
-  [ ((apply f, stack) for f from fx)..., stack... ]
+import { Daisho, daisho } from "./daisho"
+import { arity, clone } from "./helpers"
 
-mpop = _.curry (f, stack) -> apply f, stack ; stack[(arity f)..]
-mpoke = _.curry (f, stack) -> [ (apply f, stack), stack[(arity f)..]... ]
+push = _.curry daisho clone (f, daisho) ->
+  daisho.push daisho.apply f
 
-test = _.curry (predicate, action, stack) ->
-  if (apply predicate, stack) == true
-    action stack
+pop = _.curry daisho clone _.rtee (f, daisho) ->
+  daisho.apply f
+  daisho.pop()
+
+discard = daisho clone _.rtee (daisho) -> daisho.pop()
+
+peek = _.curry daisho _.rtee (f, daisho) -> daisho.apply f
+
+poke = _.curry daisho clone (f, daisho) ->
+  daisho.poke daisho.apply f
+
+pushn = _.curry daisho clone (fx, daisho) ->
+  daisho.pushn (daisho.apply f for f from fx)
+
+mpop = _.curry daisho clone _.rtee (f, daisho) ->
+  daisho.apply f
+  daisho.popn arity f
+
+mpoke = _.curry _.binary daisho clone (f, daisho, original) ->
+  daisho.popn arity f
+  daisho.push original.apply f
+  daisho
+
+test = _.curry daisho (predicate, action, daisho) ->
+  if (daisho.apply predicate) == true
+    action daisho
   else
-    stack
+    daisho
 
-branch = _.curry (conditions, stack) ->
+branch = _.curry daisho (conditions, daisho) ->
   for [predicate, action] in conditions
-    if (apply predicate, stack) == true
-      return action stack
-  stack
+    if (daisho.apply predicate) == true
+      return action daisho
+  daisho
 
-copy = _.curry (f, stack) ->
-  [ rest..., context ] = stack
-  [ ..., _context ] = f stack
-  [ rest..., _context ]
+copy = _.curry _.binary daisho clone (f, daisho, original) ->
+  daisho.copy f original
 
-# just in case so you don't have to import these separately
-export { read, write, discard } from "./async"
+read = _.curry daisho clone (name, daisho) ->
+  daisho.push daisho.read name
+
+write = _.curry daisho clone (name, daisho) ->
+  daisho.write name, daisho.peek()
+
+context = daisho clone (daisho) ->
+  daisho.push daisho._context
 
 export {
   push
   pop
+  discard
   peek
   poke
   pushn
@@ -42,4 +65,7 @@ export {
   test
   branch
   copy
+  read
+  write
+  context
 }

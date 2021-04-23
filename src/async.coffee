@@ -1,44 +1,60 @@
 import * as _ from "@dashkite/joy/function"
-import * as _a from "@dashkite/joy/array"
-import { arity, apply } from "./helpers"
 
-# general variants
-push = _.curry (f, stack) -> [ (await apply f, stack), stack... ]
-pop = _.curry (f, stack) -> await apply f, stack ; stack[1..]
-peek = _.curry (f, stack) -> await apply f, stack ; stack
-poke = _.curry (f, stack) -> [ (await apply f, stack), stack[1..]... ]
-pushn = _.curry (fx, stack) ->
-  [ (await Promise.all ((apply f, stack) for f from fx))..., stack... ]
-discard = (stack) -> stack[1..]
+import { Daisho, daisho } from "./daisho"
+import { arity, clone } from "./helpers"
 
-# m* variants
-mpop = _.curry (f, stack) -> await apply f, stack ; stack[(arity f)..]
-mpoke = _.curry (f, stack) -> [ (await apply f, stack), stack[(arity f)..]... ]
+push = _.curry daisho clone (f, daisho) ->
+  daisho.push await daisho.apply f
 
-test = _.curry (predicate, action, stack) ->
-  if (await apply predicate, stack) == true
-    action stack
+pop = _.curry daisho clone _.rtee (f, daisho) ->
+  await daisho.apply f
+  daisho.pop()
+
+peek = _.curry daisho _.rtee (f, daisho) -> daisho.apply f
+
+poke = _.curry daisho clone (f, daisho) ->
+  daisho.poke await daisho.apply f
+
+pushn = _.curry daisho clone (fx, daisho) ->
+  daisho.pushn ((await daisho.apply f) for f from fx)
+
+mpop = _.curry daisho clone _.rtee (f, daisho) ->
+  await daisho.apply f
+  daisho.popn arity f
+
+mpoke = _.curry _.binary daisho clone (f, daisho, original) ->
+  daisho.popn arity f
+  daisho.push await original.apply f
+  daisho
+
+test = _.curry daisho (predicate, action, daisho) ->
+  if (await daisho.apply predicate) == true
+    action daisho
   else
-    stack
+    daisho
 
-branch = _.curry (conditions, stack) ->
+branch = _.curry daisho (conditions, daisho) ->
   for [predicate, action] in conditions
-    if (await apply predicate, stack) == true
-      return action stack
-  stack
+    if (await daisho.apply predicate) == true
+      return action daisho
+  daisho
 
-read = _.curry (name, stack) ->
-  [ ..., context ] = stack
-  [ context[name], stack... ]
+copy = _.curry _.binary daisho clone (f, daisho, original) ->
+  daisho.copy await f original
 
-write = _.curry (name, stack) ->
-  [ rest..., context ] = stack
-  [ rest..., { context..., [name]: _a.first stack } ]
+read = _.curry daisho clone (name, daisho) ->
+  daisho.push daisho.read name
 
-copy = _.curry (f, stack) ->
-  [ rest..., context ] = stack
-  [ ..., _context ] = await f stack
-  [ rest..., _context ]
+write = _.curry daisho clone (name, daisho) ->
+  daisho.write name, daisho.peek()
+
+# so that you don't have to import these separately
+export {
+  discard
+  read
+  write
+  context
+} from "./sync"
 
 export {
   push
@@ -46,12 +62,9 @@ export {
   peek
   poke
   pushn
-  discard
-  read
-  write
-  copy
   mpop
   mpoke
   test
   branch
+  copy
 }

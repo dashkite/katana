@@ -17,9 +17,20 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Dan Yoder",
-  "main": "build/src/index.js",
+  "main": "build/node/src/index.js",
+  "exports": {
+    ".": {
+      "import": "./build/import/src/index.js",
+      "node": "./build/node/src/index.js"
+    },
+    "./*": {
+      "import": "./build/import/src/*.js",
+      "node": "./build/node/src/*.js"
+    }
+  },
   "files": [
-    "build/src"
+    "build/import/src",
+    "build/node/src"
   ],
   "scripts": {
     "test": "genie test"
@@ -33,6 +44,6 @@
     "colors": "^1.4.0"
   },
   "dependencies": {
-    "@dashkite/joy": "^0.1.0"
+    "@dashkite/joy": "file:../joy"
   }
 }

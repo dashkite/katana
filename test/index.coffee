@@ -8,3 +8,5 @@ do ->
     (await import("./sync")).default
 
   ]
+
+  process.exit if success then 0 else 1
