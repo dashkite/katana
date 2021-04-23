@@ -57,6 +57,8 @@ import * as ka from "@dashkite/katana/async"
 
 Keep in mind that the async variants that apply a function will return a promise.
 
+### Mutability
+
 Operations that mutate the given daisho operate on and return a clone. However, keep in mind that the values _within_ it are not cloned (that is, it is not a deep clone).
 
 ### Creating A Daisho
