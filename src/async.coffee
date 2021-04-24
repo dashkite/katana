@@ -40,6 +40,7 @@ branch = _.curry daisho (conditions, daisho) ->
   daisho
 
 assign = _.curry _.binary daisho clone (f, daisho, original) ->
+  if _.isArray f then f = _.flow f
   daisho.assign await f original
 
 # so that you don't have to import these separately

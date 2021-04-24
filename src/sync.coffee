@@ -42,6 +42,7 @@ branch = _.curry daisho (conditions, daisho) ->
   daisho
 
 assign = _.curry _.binary daisho clone (f, daisho, original) ->
+  if _.isArray f then f = _.pipe f
   daisho.assign f original
 
 read = _.curry daisho clone (name, daisho) ->

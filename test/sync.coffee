@@ -55,7 +55,7 @@ results = test "sync", [
   test "context operators", [
 
     test "assign", ->
-      f = $.assign _.pipe [
+      f = $.assign [
         $.push -> "bar"
         $.write "foo"
       ]

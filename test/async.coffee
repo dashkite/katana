@@ -51,8 +51,8 @@ results = test "async", [
   test "context operators", [
 
     test "assign", ->
-      f = $.assign _.flow [
-        $.push -> "bar"
+      f = $.assign [
+        $.push -> Promise.resolve "bar"
         $.write "foo"
       ]
       verify.stack [], await f []
