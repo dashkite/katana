@@ -153,13 +153,13 @@ The array may optionally take a last element as a default action (whose predicat
 
 *daisho → stack*
 
-Returns the stack.
+Pushes the entire stack onto the top of the stack.
 
 #### context
 
 *daisho → context*
 
-Returns the context.
+Pushes the context onto the top of the stack.
 
 #### get
 
