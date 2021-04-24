@@ -31,7 +31,8 @@
   },
   "files": [
     "build/import/src",
-    "build/node/src"
+    "build/node/src",
+    "src"
   ],
   "scripts": {
     "test": "genie test"
