@@ -18,6 +18,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Dan Yoder",
   "main": "build/node/src/index.js",
+  "main:coffee": "src/index.coffee",
   "exports": {
     ".": {
       "import": "./build/import/src/index.js",
