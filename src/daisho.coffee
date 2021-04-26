@@ -49,7 +49,11 @@ _.generic create,
 
 class Daisho
 
-  @isDaisho: _.isKind Daisho
+  # combine name check with quick duck type just in case
+  @isDaisho: (value) ->
+    (_.isSynonymousKind Daisho, value) &&
+      value.stack? && (_.isArray value.stack) &&
+      value.context? && _.isObject value.context
 
   @create: create
 

@@ -44,6 +44,8 @@ assign = _.curry _.binary daisho clone (f, daisho, original) ->
   daisho.assign await f original
 
 # so that you don't have to import these separately
+export { Daisho, isDaisho } from "./daisho"
+
 export {
   discard
   read

@@ -57,6 +57,8 @@ context = daisho clone (daisho) -> daisho.push daisho.context
 
 get = daisho (daisho) -> daisho.pop()
 
+export { Daisho, isDaisho } from "./daisho"
+
 export {
   push
   pop
