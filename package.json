@@ -46,6 +46,6 @@
     "colors": "^1.4.0"
   },
   "dependencies": {
-    "@dashkite/joy": "^0.1.6"
+    "@dashkite/joy": "^0.1.7"
   }
 }

@@ -2,10 +2,13 @@ import assert from "assert"
 import {print, test, success} from "amen"
 import * as _ from "@dashkite/joy"
 import * as $ from "../src/sync"
-import { Daisho } from "../src/daisho"
 import { verify, compare } from "./helpers"
 
 results = test "sync", [
+
+  test "type check", ->
+    d = $.Daisho.create []
+    assert.equal true, $.isDaisho d
 
   test "stack operators", [
 
@@ -64,7 +67,7 @@ results = test "sync", [
 
     test "read", ->
       f = $.read "foo"
-      verify.stack [ "bar" ], f Daisho.create [], foo: "bar"
+      verify.stack [ "bar" ], f $.Daisho.create [], foo: "bar"
 
     test "write", ->
       f = $.write "foo"
@@ -72,7 +75,7 @@ results = test "sync", [
 
     test "context", ->
       f = $.context
-      verify.stack [ foo: "bar" ], f Daisho.create [], foo: "bar"
+      verify.stack [ foo: "bar" ], f $.Daisho.create [], foo: "bar"
 
   ]
 
