@@ -96,7 +96,6 @@ results = test "sync", [
       verify.stack [ "foo" ], await f [ true ]
       verify.stack [ "bar" ], await f [ false ]
 
-
   ]
 
 ]

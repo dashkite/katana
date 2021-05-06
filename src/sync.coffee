@@ -3,8 +3,7 @@ import * as _ from "@dashkite/joy/function"
 import { Daisho, daisho } from "./daisho"
 import { arity, clone } from "./helpers"
 
-push = _.curry daisho clone (f, daisho) ->
-  daisho.push daisho.apply f
+push = _.curry daisho clone (f, daisho) -> daisho.push daisho.apply f
 
 pop = _.curry daisho clone _.rtee (f, daisho) ->
   daisho.apply f
@@ -14,8 +13,7 @@ discard = daisho clone _.rtee (daisho) -> daisho.pop()
 
 peek = _.curry daisho _.rtee (f, daisho) -> daisho.apply f
 
-poke = _.curry daisho clone (f, daisho) ->
-  daisho.poke daisho.apply f
+poke = _.curry daisho clone (f, daisho) -> daisho.poke daisho.apply f
 
 pushn = _.curry daisho clone (fx, daisho) ->
   daisho.pushn (daisho.apply f for f from fx)
@@ -30,12 +28,14 @@ mpoke = _.curry _.binary daisho clone (f, daisho, original) ->
   daisho
 
 test = _.curry daisho (predicate, action, daisho) ->
+  # TODO log only status updates
   if (daisho.apply predicate) == true
     action daisho
   else
     daisho
 
 branch = _.curry daisho (conditions, daisho) ->
+  # TODO log only status updates
   for [predicate, action] in conditions
     if (daisho.apply predicate) == true
       return action daisho
@@ -45,11 +45,9 @@ assign = _.curry _.binary daisho clone (f, daisho, original) ->
   if _.isArray f then f = _.pipe f
   daisho.assign f original
 
-read = _.curry daisho clone (name, daisho) ->
-  daisho.push daisho.read name
+read = _.curry daisho clone (name, daisho) -> daisho.push daisho.read name
 
-write = _.curry daisho clone (name, daisho) ->
-  daisho.write name, daisho.peek()
+write = _.curry daisho clone (name, daisho) -> daisho.write name, daisho.peek()
 
 stack = daisho clone (daisho) -> daisho.push daisho.stack
 
