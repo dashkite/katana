@@ -1,4 +1,7 @@
-import * as _ from "@dashkite/joy/function"
+import * as _ϝ from "@dashkite/joy/function"
+import * as _τ from "@dashkite/joy/type"
+import * as _ο from "@dashkite/joy/object"
+_ = _ο.merge _ϝ, _τ
 
 import { Daisho, daisho } from "./daisho"
 import { arity, clone } from "./helpers"
@@ -71,6 +74,7 @@ export {
   assign
   read
   write
+  stack
   context
   get
 }

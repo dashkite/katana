@@ -1,4 +1,4 @@
-import * as _ from "@dashkite/joy/function"
+import * as _ϝ from "@dashkite/joy/function"
 import * as _γ from "@dashkite/joy/generic"
 import * as _τ from "@dashkite/joy/type"
 import * as _ν from "@dashkite/joy/value"
@@ -6,7 +6,7 @@ import * as _ο from "@dashkite/joy/object"
 
 import { tee, apply } from "./helpers"
 
-_ο.assign _, _γ, _τ, _ν, _ο
+_ = _ο.merge _ϝ, _γ, _τ, _ν, _ο
 
 create = _.generic
   name: "Daisho.create"
