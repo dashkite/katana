@@ -39,15 +39,15 @@
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
-    "@babel/preset-env": "^7.14.2",
-    "@dashkite/genie": "^0.3.3",
-    "@dashkite/genie-presets": "^0.1.5",
-    "@dashkite/masonry": "^0.10.3",
+    "@babel/preset-env": "^7.14.4",
+    "@dashkite/genie": "^0.4.1",
+    "@dashkite/genie-presets": "^0.1.13",
+    "@dashkite/masonry": "^0.10.8",
     "amen": "^3.0.0",
     "coffeescript": "^2.5.1",
     "colors": "^1.4.0"
   },
   "dependencies": {
-    "@dashkite/joy": "^0.3.3"
+    "@dashkite/joy": "^0.3.6"
   }
 }
