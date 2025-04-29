@@ -31,14 +31,12 @@ mpoke = _.curry _.binary daisho clone (f, daisho, original) ->
   daisho
 
 test = _.curry daisho (predicate, action, daisho) ->
-  # TODO log only status updates
   if (daisho.apply predicate) == true
     action daisho
   else
     daisho
 
 branch = _.curry daisho (conditions, daisho) ->
-  # TODO log only status updates
   for [predicate, action] in conditions
     if (daisho.apply predicate) == true
       return action daisho
