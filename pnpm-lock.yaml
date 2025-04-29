@@ -27,6 +27,9 @@ importers:
       '@dashkite/masonry':
         specifier: ^0.10.8
         version: 0.10.8
+      '@dashkite/vista':
+        specifier: link:../vista
+        version: link:../vista
       amen:
         specifier: ^3.0.0
         version: 3.0.0
