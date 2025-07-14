@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@dashkite/joy':
-        specifier: ^0.3.6
+        specifier: ^0.3.16
         version: 0.3.16
     devDependencies:
       '@babel/core':
@@ -22,7 +22,7 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1
       '@dashkite/genie-presets':
-        specifier: ^0.1.13
+        specifier: ^0.1.15
         version: 0.1.15
       '@dashkite/masonry':
         specifier: ^0.10.8
