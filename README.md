@@ -1,17 +1,16 @@
 # Katana
 
-*Daisho (stack- and context-based) composition combinators in JavaScript.*
+*Combinators for stack-based composition in JavaScript.*
 
 ```coffeescript
-import {pipe} from "@dashkite/joy/function"
-import {push, mpush, pop, stack} from "@dashkite/katana/sync"
+import { pipe } from "@dashkite/joy/function"
+import { push, pop, stack } from "@dashkite/katana"
 
 pipe [
-  push -> 3
-  push -> 4
-  mpush add
-  pop (sum) -> assert.equal sum, 7
-  stack
+  push -> 1
+  push -> 2
+  push ( x, y ) -> x + y
+  pop ( z ) -> assert.equal 3, z
   (stack) -> assert.equal stack.length, 0
 ]
 ```
@@ -24,145 +23,137 @@ pipe [
 
 ## Installation
 
+Install Katana as `@dashkite/katana` using your favorite package manager. To use Katana in a browser, import it directly or use your favorite bundler.
+
+## Motivation
+
+Functional programming is often promoted as a way to build more reliable software. In particular, function composition promises to make it possible to combine modular and well-tested functions to build more complex, yet reliable, systems.
+
+In practice, one of the challenges is that composition can be difficult. Function signatures don’t always line up neatly, forcing awkward compromises that may be difficult to understand or reason about.
+
+Stack-based composition is an attempt to address this challenge by making it easier to compose binary (or non-unary) functions in a [point-free](https://en.wikipedia.org/wiki/Tacit_programming) style.
+
+For example, consider a binary function, _encrypt_, taking a key and message (the plaintext). We might write this imperatively like this:
+
+```coffeescript
+encryptWithKeyName = ( message, name ) ->
+  encrypt message, await getKey name
 ```
-npm i @dashkite/katana
+
+If we wanted to use composition here, we’d need a way to compose `encrypt` with `getKey`. However, because `encrypt` is a binary function, there’s no easy way to do this. 
+
+Stack-based composition solves this problem by composing over a stack, so that both the key and message are available (the top of the stack is the rightmost value, at the end of the array):
+
+```coffeescript
+encryptWithKeyName = pipe [
+  pair               # [ message, key-name ]
+  replace getKey     # [ message, key ]
+  swap               # [ key, message ]
+  replace encrypt    # [ encrypted-message ]
+  ([ ciphertext ]) -> ciphertext
+]
 ```
 
-Browser-compatible. Use with your favorite bundler or import directly.
-
-### Motivation
-
-Function composition is a powerful tool in theory, but in practice, it's often difficult for non-trivial scenarios because the arguments and return values of a given set of functions may not be amenable to simple composition. Stack-based composition provides generic context—the stack—and a set of combinators for adapting ordinary functions for use with it. This simplifies composition, even across libraries that were not designed to be used together. This is a key advantage of composition over chaining, which requires that each function be expressly added to an object as a method.
-
-#### Daisho Data Structure
-
-However, stack-based composition can lead to code that is difficult to reason about. Combining a stack with a context object makes possible variety of compositional scenarios. Context-based composition is the basis for method-chaining, or fluent, programming, popularized by jQuery, where the target object serves as the context. We call this hybrid stack/object data structure a _daisho_, because of its dual nature. We can use the stack for simple composition and the context for complex composition. In combination, we may use the stack to compute results we place into the context for later use.
+For such a simple function, we might well prefer to use the imperative style. However, for more complex cases, composition makes it easier realize the potential advantages of functional programming.
 
 ## API
 
-Stack operations always apply a function, using the arity of the function to determine how many elements from the stack to pass into the function and possibly to remove from the stack. Applying a unary function will result in passing the top of the stack into the function. Applying a binary function will result in passing the first two elements from the stack into the function, and so on. Context operations do not apply a function, but simply move data to and from the context.
+The core stack combinators—push, pop, peek, and poke—apply a function, using the arity of the function to determine how many elements from the stack to pass into the function and, in the case of pop and poke, to remove from the stack. Applying a unary function will result in passing the top of the stack into the function. Applying a binary function will result in passing the first two elements from the stack into the function, and so on. Other stack operators, such as drop and copy, simply operate on the stack directly.
 
-There are synchronous and asynchrouns variants for operations that apply a function. By default, when importing Katana, you get the asynchronous versions. These are bit slower since they yield control of the event loop after each operation that applies a function (since the function may return a promise). You may load the synchronous versions using a subpath:
+Typically, you compose Katana functions. You can do this with any compose function from your favorite functional programming library. Stack combinators that take asynchronous functions will return a promise, so your composition function should handle promises if you’re using asynchronous functions.
+
+## Reference
+
+### push
+
+_push f, stack → stack_
+
+Call _f_ with _k_ items from the stack, where _k_ is the arity of _f_. Push the return value onto the stack.
+
+### pop
+
+_pop f, stack → stack_
+
+Call _f_ with _k_ items from the stack, where _k_ is the arity of _f_. Pops the items from the stack.
+
+### poke, replace
+
+_poke f, stack → stack_
+
+Call _f_ with _k_ items from the stack, where _k_ is the arity of _f_. Pops the items from the stack. Push the return value onto the stack. Alias: _replace_.
+
+### peek
+
+_peek f, stack → stack_
+
+Call _f_ with _k_ items from the stack, where _k_ is the arity of _f_. Leaves the stack unchanged.
+
+### drop, discard
+
+_drop stack → stack_
+
+Pops the stack. Equivalent to `pop ( x ) ->`
+
+### up
+
+_up stack → stack_
+
+Rotates the items on the stack, pushing items up, while the top of the stack goes to the bottom.
 
 ```coffeescript
-import {push, pop} from "@dashkite/katana/sync"
+do pipe [
+  -> [ 1..5 ]      # [ 1, 2, 3, 4, 5 ]
+  up               # [ 5, 1, 2, 3, 4 ]
+]
 ```
 
-You can load both variants using the wildcard import:
+### down
+
+_down stack → stack_
+
+Rotates the items on the stack, pushing items down, while the bottom of the stack goes to the top.
 
 ```coffeescript
-import * as ks from "@dashkite/katana/sync"
-import * as ka from "@dashkite/katana/async"
+do pipe [
+  -> [ 1..5 ]     # [ 1, 2, 3, 4, 5 ]
+  down            # [ 2, 3, 4, 5, 1 ]
+]
 ```
 
-Keep in mind that the async variants that apply a function will return a promise.
+### swap
 
-### Mutability
+_swap stack → stack_
 
-Operations that mutate the given daisho operate on and return a clone. However, keep in mind that the values _within_ it are not cloned (that is, it is not a deep clone).
+Swaps the first two items on the stack, so the first becomes the second and vice-versa.
 
-### Creating A Daisho
+### copy, duplicate
 
-*Daisho.create object → daisho*
+_copy stack → stack_
 
-*Daisho.create iterable → daisho*
+Copies the top item on the stack.
 
-*Daisho.create iterable, object → daisho*
+### flatten
 
-*Daisho.create object, iterable → daisho*
+_flatten stack → stack_
 
-You may create a Daisho using an iterable, object, or both, in any order. The stack will be constructed from an iterable using `Array.from`. If you pass in an array, however, it will be used directly.
+If the first item of the stack is an iterable, push each item it produces onto the stack. Items are added in the reverse order from when they’re produced, so that the first item produced will be at the top of the stack.
 
-### Stack Operations
+If it’s not an iterable, do nothing.
 
-Functions prefixed with an _m_ will alter the stack based on the arity of the given function, ex: `mpop`, will not only pass *arity* elements to the given function, but will subsequently remove those elements from the stack (instead of just the first element).
+```coffeescript
+do pipe [
+  -> []           # []
+  push [ 1..5 ]   # [[ 1..5 ]]
+  flatten         # [ 5, 4, 3, 2, 1 ]
+]
+```
 
-#### push
+> [!Note]
+>
+> The reason we need this operator—rather than just relying on array functions—is because there’s no simple way to do this otherwise. For example, using `Array::flat` would just add back the array.
 
-*push f, daisho → daisho*
+### stack
 
-Calls `f` with `arity f` elements from the top of the stack. The result is added to the top of the stack.
+_stack stack → stack_
 
-#### pop | mpop
-
-*pop f, daisho → daisho*
-
-Calls  `f` with `arity f` elements from the top of the stack. The top of the stack is removed.
-
-#### peek
-
-*peek f, daisho → daisho*
-
-Calls  `f` with `arity f` elements from the top of the stack. The stack is unchanged.
-
-#### poke | mpoke
-
-*poke f, daisho → daisho*
-
-Calls  `f` with `arity f` elements from the top of the stack. The top of the stack is replaced with the result.
-
-#### pushn
-
-*pushn array\<function\>, daisho → daisho*
-
-Like `push`, but for an array of functions, pushing the result of each onto the stack.
-
-#### discard
-
-*discard daisho → daisho*
-
-Discard the element at the top of the stack. Equvalent to `pop ->` but faster and there’s no need for a synchronous variant.
-
-### Context Operations
-
-The `read` and `write` functions operate on the context.
-
-#### read
-
-*read name, daisho → daisho*
-
-Reads a property from the context and pushes it.
-
-#### write
-
-*write name, daisho → daisho*
-
-Writes the element at the top of the stack to the context.
-
-#### assign
-
-*assign f, daisho → daisho*
-
-Applies the function, which should take and return a daisho as an argument and sets the context based on the returned context. Useful for performing a computation and writing the result to the context while discarding any changes to the stack. 
-
-### Predicates
-
-#### test predicate, action
-
-Calls  `predicate` with `arity predicate` elements from the top of the stack and calls `action` with the stack if the result is true.
-
-#### branch conditions
-
-Given an array of `conditions` whose elements are `predicate, action` pairs, calls` `predicate` with `arity predicate` elements from the top of the stack and calls `action` with the stack if the result is true, for each pair, until one is true.
-
-The array may optionally take a last element as a default action (whose predicate is implicitly true).
-
-### Accessors
-
-#### stack
-
-*daisho → stack*
-
-Pushes the entire stack onto the top of the stack.
-
-#### context
-
-*daisho → context*
-
-Pushes the context onto the top of the stack.
-
-#### get
-
-*daisho → value*
-
-Returns the top of the stack.
+Place the stack on the stack as an array, removing all the other items.
