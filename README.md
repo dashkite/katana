@@ -4,7 +4,7 @@
 
 ```coffeescript
 import { pipe } from "@dashkite/joy/function"
-import { push, pop, stack } from "@dashkite/katana"
+import { push, pop, poke, stack } from "@dashkite/katana"
 
 pipe [
   push -> 1
