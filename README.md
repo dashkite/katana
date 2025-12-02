@@ -9,7 +9,7 @@ import { push, pop, stack } from "@dashkite/katana"
 pipe [
   push -> 1
   push -> 2
-  push ( x, y ) -> x + y
+  poke ( x, y ) -> x + y
   pop ( z ) -> assert.equal 3, z
   (stack) -> assert.equal stack.length, 0
 ]
