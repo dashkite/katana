@@ -4,14 +4,14 @@
 
 ```coffeescript
 import { pipe } from "@dashkite/joy/function"
-import { push, pop, poke, stack } from "@dashkite/katana"
+import { push, pop, poke } from "@dashkite/katana"
 
 pipe [
   push -> 1
   push -> 2
   poke ( x, y ) -> x + y
   pop ( z ) -> assert.equal 3, z
-  (stack) -> assert.equal stack.length, 0
+  ( stack ) -> assert.equal stack.length, 0
 ]
 ```
 
