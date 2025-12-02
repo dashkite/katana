@@ -27,40 +27,39 @@ Install Katana as `@dashkite/katana` using your favorite package manager. To use
 
 ## Motivation
 
-Functional programming is often promoted as a way to build more reliable software. In particular, function composition promises to make it possible to combine modular and well-tested functions to build more complex, yet reliable, systems.
+Functional programming is often promoted as a way to build more reliable software. In particular, function composition promises to make it possible to combine modular and well-tested functions to build more complex systems without sacrificing reliability or ease of maintenance.
 
-In practice, one of the challenges is that composition can be difficult. Function signatures don’t always line up neatly, forcing awkward compromises that may be difficult to understand or reason about.
+In practice, one of the challenges is that composition can be difficult. Function signatures don’t always line up neatly, forcing awkward compromises that may be difficult to understand or reason about. In contrast, imperative code with intermediate state, though perhaps less elegant, may ultimately be more expressive.
 
-Stack-based composition is an attempt to address this challenge by making it easier to compose binary (or non-unary) functions in a [point-free](https://en.wikipedia.org/wiki/Tacit_programming) style.
-
-For example, consider a binary function, _encrypt_, taking a key and message (the plaintext). We might write this imperatively like this:
+Stack-based composition is an attempt to address this challenge by making it easier to compose binary (or non-unary) functions in a [point-free](https://en.wikipedia.org/wiki/Tacit_programming) style. For example, consider a binary function, _encrypt_, taking a key and message (the plaintext). We might write this imperatively like this:
 
 ```coffeescript
 encryptWithKeyName = ( message, name ) ->
-  encrypt message, await getKey name
+  key = await getKey name
+  encrypt message, key
 ```
 
-If we wanted to use composition here, we’d need a way to compose `encrypt` with `getKey`. However, because `encrypt` is a binary function, there’s no easy way to do this. 
+If we wanted to use composition here, we’d need a way to compose `encrypt` with `getKey`. However, because `encrypt` is a binary function, it’s unclear how we might do this. 
 
 Stack-based composition solves this problem by composing over a stack, so that both the key and message are available (the top of the stack is the rightmost value, at the end of the array):
 
 ```coffeescript
 encryptWithKeyName = pipe [
-  pair               # [ message, key-name ]
-  replace getKey     # [ message, key ]
-  swap               # [ key, message ]
-  replace encrypt    # [ encrypted-message ]
-  ([ ciphertext ]) -> ciphertext
+  pair                             # [ message, key-name ]
+  poke getKey                      # [ message, key ]
+  swap                             # [ key, message ]
+  poke encrypt                     # [ encrypted-message ]
+  first                            # => encrypted-message
 ]
 ```
 
-For such a simple function, we might well prefer to use the imperative style. However, for more complex cases, composition makes it easier realize the potential advantages of functional programming.
+For such a simple function, we might well prefer to use the imperative style. However, for more complex cases, being able to rely strictly on composition makes it easier realize the advantages of functional programming.
 
 ## API
 
-The core stack combinators—push, pop, peek, and poke—apply a function, using the arity of the function to determine how many elements from the stack to pass into the function and, in the case of pop and poke, to remove from the stack. Applying a unary function will result in passing the top of the stack into the function. Applying a binary function will result in passing the first two elements from the stack into the function, and so on. Other stack operators, such as drop and copy, simply operate on the stack directly.
+The core stack combinators—push, pop, peek, and poke—apply a function, using the arity of the function to determine how many elements from the stack to pass into it, and, in the case of pop and poke, to remove from the stack. Applying a unary function will result in passing the top of the stack into the function. Applying a binary function will result in passing the first two elements from the stack into the function, and so on. Other stack operators, such as drop and copy, simply operate on the stack directly.
 
-Typically, you compose Katana functions. You can do this with any compose function from your favorite functional programming library. Stack combinators that take asynchronous functions will return a promise, so your composition function should handle promises if you’re using asynchronous functions.
+You can compose function with any composition function from your favorite functional programming library. Stack combinators that take asynchronous functions will return a promise, so your composition function should handle promises if you’re using asynchronous functions.
 
 ## Reference
 

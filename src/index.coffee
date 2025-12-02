@@ -2,11 +2,10 @@ import { detach, curry, pipe } from "@dashkite/joy/function"
 
 cat = detach Array::concat
 reverse = detach Array::reverse
-toArray = Array.from
 
 normalize = ( f ) ->
   ( g, it ) -> f g, 
-    if it? then toArray it else []
+    if it? then Array.from it else []
 
 apply = ( f ) -> ( ax ) -> f.apply null, ax
 
@@ -68,7 +67,7 @@ duplicate = copy
 
 flatten = ([ rest..., first ]) ->
   if Array.isArray first
-    cat rest, reverse toArray first
+    cat rest, reverse Array.from first
   else
     [ rest..., first ]
       
